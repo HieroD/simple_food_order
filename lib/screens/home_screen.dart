@@ -4,6 +4,8 @@ import '../styles/styles.dart';
 import '../widgets/widgets.dart';
 import 'food_detail_screen.dart';
 import 'order_screen.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 /// Halaman utama Home – shell navigasi bottom tab
 class HomeScreen extends StatefulWidget {
@@ -124,11 +126,38 @@ class _HomePage extends StatefulWidget {
 class _HomePageState extends State<_HomePage> {
   int _selectedCategoryIndex = 0;
   late List<FoodCategory> _categories;
+  String _dailyQuote = "Mengambil quote hari ini...";
+  bool _isLoadingQuote = true;
 
   @override
   void initState() {
     super.initState();
     _rebuildCategories(0);
+    _fetchDailyQuote();
+  }
+
+  Future<void> _fetchDailyQuote() async {
+    try {
+      final response = await http.get(Uri.parse('https://api.adviceslip.com/advice'));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _dailyQuote = data['slip']['advice'];
+          _isLoadingQuote = false;
+        });
+      } else {
+        setState(() {
+          _dailyQuote = "Makan enak, hati senang. Selamat memesan!";
+          _isLoadingQuote = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _dailyQuote = "Pesan makanan favoritmu untuk mencerahkan hari!";
+        _isLoadingQuote = false;
+      });
+    }
   }
 
   void _rebuildCategories(int selected) {
@@ -159,6 +188,7 @@ class _HomePageState extends State<_HomePage> {
         slivers: [
           SliverToBoxAdapter(child: _buildHeader()),
           SliverToBoxAdapter(child: _buildSearchBar()),
+          SliverToBoxAdapter(child: _buildAdviceBanner()),
           SliverToBoxAdapter(
               child: _buildSectionHeader(
             title: 'Kategori',
@@ -195,6 +225,57 @@ class _HomePageState extends State<_HomePage> {
           const SliverToBoxAdapter(
               child: SizedBox(height: AppDimensions.paddingL)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAdviceBanner() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimensions.paddingL,
+        AppDimensions.paddingS,
+        AppDimensions.paddingL,
+        0,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(AppDimensions.paddingM),
+        decoration: BoxDecoration(
+          color: AppColors.homeAccentLight ?? Colors.orange, 
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.homeAccent ?? Colors.orange, width: 1),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.format_quote_rounded,
+              color: AppColors.homeAccent,
+              size: 32,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _isLoadingQuote
+                  ? const Center(
+                      child: SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.homeAccent,
+                        ),
+                      ),
+                    )
+                  : Text(
+                      '"$_dailyQuote"',
+                      style: const TextStyle(
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.homeTextSecondary,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
