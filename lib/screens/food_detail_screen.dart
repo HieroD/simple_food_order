@@ -75,7 +75,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
       backgroundColor: AppColors.homeBackground,
       body: Stack(
         children: [
-          // ── Scrollable content ─────────────────────────────────
+          // ── Scrollable content 
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
@@ -108,7 +108,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
             ],
           ),
 
-          // ── Tombol Add to Cart (sticky bottom) ─────────────────
+          // ── Tombol Add to Cart (sticky bottom) 
           Positioned(
             bottom: 0,
             left: 0,
@@ -120,7 +120,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
     );
   }
 
-  // ── Sub-widgets ──────────────────────────────────────────────────
+  // ── Sub-widgets 
 
   Widget _buildHeroImage(BuildContext context) {
     return SliverAppBar(
@@ -353,7 +353,30 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
         height: 56,
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            final selectedToppingNames = _toppings
+                .where((t) => t.isSelected)
+                .map((t) => t.name)
+                .toList();
+
+            final newOrder = OrderItem(
+              restaurant: widget.restaurant,
+              quantity: _quantity,
+              totalPrice: _totalPrice,
+              selectedToppings: selectedToppingNames,
+            );
+
+            AppData.cartItems.add(newOrder);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Berhasil ditambahkan ke pesanan!'),
+                backgroundColor: AppColors.homeAccent,
+              ),
+            );
+
+            Navigator.of(context).pop();
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.homeAccent,
             foregroundColor: Colors.white,

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/app_data.dart';
 import '../styles/styles.dart';
 import '../widgets/widgets.dart';
-import 'search_screen.dart';
 import 'food_detail_screen.dart';
+import 'order_screen.dart';
 
 /// Halaman utama Home – shell navigasi bottom tab
 class HomeScreen extends StatefulWidget {
@@ -16,13 +16,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _navIndex = 0;
 
-  // Halaman per tab (index 1 = Search)
-  static const List<Widget> _pages = [
-    _HomePage(),
-    SearchScreen(),
-    _PlaceholderPage(icon: Icons.receipt_long_rounded, label: 'Orders'),
-    _PlaceholderPage(icon: Icons.person_rounded,       label: 'Profile'),
-  ];
+  List<Widget> get _pages => [
+        const _HomePage(),
+        const OrdersScreen(),
+        const _PlaceholderPage(icon: Icons.person_rounded, label: 'Profile'),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final bool isDark = false;
 
     return Scaffold(
-      backgroundColor:
-          AppColors.homeBackground,
+      backgroundColor: AppColors.homeBackground,
       body: IndexedStack(index: _navIndex, children: _pages),
       bottomNavigationBar: _BottomNav(
         currentIndex: _navIndex,
@@ -42,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ── Bottom Nav Bar ───────────────────────────────────────────────────
+// Bottom Nav Bar
 class _BottomNav extends StatelessWidget {
   final int currentIndex;
   final bool isDark;
@@ -57,15 +54,17 @@ class _BottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const items = [
-      {'icon': Icons.home_rounded,         'label': 'Home'},
-      {'icon': Icons.search_rounded,       'label': 'Search'},
+      {'icon': Icons.home_rounded, 'label': 'Home'},
       {'icon': Icons.receipt_long_rounded, 'label': 'Orders'},
-      {'icon': Icons.person_rounded,       'label': 'Profile'},
+      {'icon': Icons.person_rounded, 'label': 'Profile'},
     ];
 
-    final bgColor    = isDark ? AppColors.searchNavDark    : AppColors.navBarBackground;
-    final borderColor = isDark ? AppColors.searchNavDarkBorder : AppColors.divider;
-    final inactiveColor = isDark ? AppColors.searchScreenMuted : AppColors.navBarInactive;
+    final bgColor =
+        isDark ? AppColors.searchNavDark : AppColors.navBarBackground;
+    final borderColor =
+        isDark ? AppColors.searchNavDarkBorder : AppColors.divider;
+    final inactiveColor =
+        isDark ? AppColors.searchScreenMuted : AppColors.navBarInactive;
 
     return Container(
       decoration: BoxDecoration(
@@ -114,7 +113,7 @@ class _BottomNav extends StatelessWidget {
   }
 }
 
-// ── Halaman Home (konten) ────────────────────────────────────────────
+// ── Halaman Home (konten)
 class _HomePage extends StatefulWidget {
   const _HomePage();
 
@@ -160,13 +159,15 @@ class _HomePageState extends State<_HomePage> {
         slivers: [
           SliverToBoxAdapter(child: _buildHeader()),
           SliverToBoxAdapter(child: _buildSearchBar()),
-          SliverToBoxAdapter(child: _buildSectionHeader(
+          SliverToBoxAdapter(
+              child: _buildSectionHeader(
             title: 'Kategori',
             actionLabel: 'Lihat Semua',
             onAction: () {},
           )),
           SliverToBoxAdapter(child: _buildCategoryRow()),
-          SliverToBoxAdapter(child: _buildSectionHeader(
+          SliverToBoxAdapter(
+              child: _buildSectionHeader(
             title: 'Restoran Populer',
             actionLabel: 'Lihat Peta',
             onAction: () {},
@@ -178,15 +179,15 @@ class _HomePageState extends State<_HomePage> {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, i) => RestaurantCard(
-                    restaurant: AppData.restaurants[i],
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => FoodDetailScreen(
-                          restaurant: AppData.restaurants[i],
-                        ),
+                  restaurant: AppData.restaurants[i],
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => FoodDetailScreen(
+                        restaurant: AppData.restaurants[i],
                       ),
                     ),
                   ),
+                ),
                 childCount: AppData.restaurants.length,
               ),
             ),
@@ -322,7 +323,7 @@ class _HomePageState extends State<_HomePage> {
   }
 }
 
-// ── Placeholder tab (Orders / Profile) ──────────────────────────────
+// ── Placeholder tab
 class _PlaceholderPage extends StatelessWidget {
   final IconData icon;
   final String label;

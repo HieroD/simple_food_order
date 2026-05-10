@@ -34,9 +34,26 @@ class Restaurant {
   });
 }
 
+/// Model untuk pesanan yang ditambahkan ke keranjang
+class OrderItem {
+  final Restaurant restaurant;
+  final int quantity;
+  final double totalPrice;
+  final List<String> selectedToppings;
+
+  OrderItem({
+    required this.restaurant,
+    required this.quantity,
+    required this.totalPrice,
+    required this.selectedToppings,
+  });
+}
+
 /// Data dummy untuk development
 class AppData {
   AppData._();
+
+  static List<OrderItem> cartItems = []; 
 
   static const List<FoodCategory> categories = [
     FoodCategory(id: '1', name: 'makanan',       emoji: '🍢', isSelected: true),
@@ -49,7 +66,7 @@ class AppData {
       name: 'Sate Ayam Pak Kumis',
       cuisine: 'Jawa • Sate Ayam',
       rating: 4.9,
-      deliveryTime: '15–25 min',
+      deliveryTime: '15-25 min',
       hasFreeDelivery: true,
       imagePath: 'assets/images/sate_ayam.png',
     ),
@@ -58,7 +75,7 @@ class AppData {
       name: 'Rawon Setan Surabaya',
       cuisine: 'Jawa Timur • Rawon',
       rating: 4.8,
-      deliveryTime: '20–30 min',
+      deliveryTime: '20-30 min',
       hasFreeDelivery: false,
       imagePath: 'assets/images/rawon.png',
     ),
@@ -67,7 +84,7 @@ class AppData {
       name: 'Bakmi Jawa Mbah Hadi',
       cuisine: 'Jawa • Bakmi Goreng',
       rating: 4.7,
-      deliveryTime: '20–35 min',
+      deliveryTime: '20-35 min',
       hasFreeDelivery: true,
       imagePath: 'assets/images/bakmi_jawa.png',
     ),
@@ -76,7 +93,7 @@ class AppData {
       name: 'Nasi Goreng Kambing Kebon Sirih',
       cuisine: 'Betawi • Nasi Goreng',
       rating: 4.6,
-      deliveryTime: '10–20 min',
+      deliveryTime: '10-20 min',
       hasFreeDelivery: false,
       imagePath: 'assets/images/nasi_goreng.png',
     ),
