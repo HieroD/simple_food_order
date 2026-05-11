@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 /// Model untuk kategori makanan
 class FoodCategory {
   final String id;
@@ -32,6 +35,18 @@ class Restaurant {
     this.hasFreeDelivery = false,
     required this.imagePath,
   });
+
+  factory Restaurant.fromJson(Map<String, dynamic> json) {
+    return Restaurant(
+      id: json['id'].toString(),
+      name: json['name'],
+      cuisine: json['cuisine'],
+      rating: (json['rating'] as num).toDouble(), 
+      deliveryTime: json['delivery_time'],
+      hasFreeDelivery: json['has_free_delivery'] == true,
+      imagePath: json['image_path'],
+    );
+  }
 }
 
 /// Model untuk pesanan yang ditambahkan ke keranjang
@@ -59,42 +74,26 @@ class AppData {
     FoodCategory(id: '1', name: 'makanan',       emoji: '🍢', isSelected: true),
   ];
 
-  static const List<Restaurant> restaurants = [
-    Restaurant(
-      id: '1',
-      name: 'Sate Ayam Pak Kumis',
-      cuisine: 'Jawa • Sate Ayam',
-      rating: 4.9,
-      deliveryTime: '15-25 min',
-      hasFreeDelivery: true,
-      imagePath: 'assets/images/sate_ayam.png',
-    ),
-    Restaurant(
-      id: '2',
-      name: 'Rawon Setan Surabaya',
-      cuisine: 'Jawa Timur • Rawon',
-      rating: 4.8,
-      deliveryTime: '20-30 min',
-      hasFreeDelivery: false,
-      imagePath: 'assets/images/rawon.png',
-    ),
-    Restaurant(
-      id: '3',
-      name: 'Bakmi Jawa Mbah Hadi',
-      cuisine: 'Jawa • Bakmi Goreng',
-      rating: 4.7,
-      deliveryTime: '20-35 min',
-      hasFreeDelivery: true,
-      imagePath: 'assets/images/bakmi_jawa.png',
-    ),
-    Restaurant(
-      id: '4',
-      name: 'Nasi Goreng Kambing Kebon Sirih',
-      cuisine: 'Betawi • Nasi Goreng',
-      rating: 4.6,
-      deliveryTime: '10-20 min',
-      hasFreeDelivery: false,
-      imagePath: 'assets/images/nasi_goreng.png',
-    ),
-  ];
+  static const String baseUrl = 'http://192.168.56.1:8080/api';
+  static List<Restaurant> restaurants = [];
+
+  static Future<List<Restaurant>> fetchRestaurants() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/restaurants'));
+      print("2. Response status: ${response.statusCode}"); 
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonList = jsonDecode(response.body);
+        
+
+        restaurants = jsonList.map((json) => Restaurant.fromJson(json)).toList();
+
+        return restaurants; 
+      } else {
+        throw Exception('Failed to load restaurants. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to connect to the API: $e');
+    }
+  }
 }

@@ -128,18 +128,35 @@ class _HomePageState extends State<_HomePage> {
   late List<FoodCategory> _categories;
   String _dailyQuote = "Mengambil quote hari ini...";
   bool _isLoadingQuote = true;
+  bool _isLoadingRestaurants = true;
 
   @override
   void initState() {
     super.initState();
     _rebuildCategories(0);
     _fetchDailyQuote();
+    _loadRestaurants();
+  }
+
+  Future<void> _loadRestaurants() async {
+    try {
+      await AppData.fetchRestaurants();
+    } catch (e) {
+      debugPrint("Error loading restaurants: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingRestaurants = false;
+        });
+      }
+    }
   }
 
   Future<void> _fetchDailyQuote() async {
     try {
-      final response = await http.get(Uri.parse('https://api.adviceslip.com/advice'));
-      
+      final response =
+          await http.get(Uri.parse('https://api.adviceslip.com/advice'));
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -206,21 +223,36 @@ class _HomePageState extends State<_HomePage> {
             padding: const EdgeInsets.symmetric(
               horizontal: AppDimensions.paddingL,
             ),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, i) => RestaurantCard(
-                  restaurant: AppData.restaurants[i],
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => FoodDetailScreen(
-                        restaurant: AppData.restaurants[i],
+            sliver: _isLoadingRestaurants
+                ? const SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(40.0),
+                        child: CircularProgressIndicator(
+                            color: AppColors.homeAccent),
                       ),
                     ),
-                  ),
-                ),
-                childCount: AppData.restaurants.length,
-              ),
-            ),
+                  )
+                : AppData.restaurants.isEmpty
+                    ? const SliverToBoxAdapter(
+                        child:
+                            Center(child: Text("Tidak ada restoran ditemukan")),
+                      )
+                    : SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, i) => RestaurantCard(
+                            restaurant: AppData.restaurants[i],
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => FoodDetailScreen(
+                                  restaurant: AppData.restaurants[i],
+                                ),
+                              ),
+                            ),
+                          ),
+                          childCount: AppData.restaurants.length,
+                        ),
+                      ),
           ),
           const SliverToBoxAdapter(
               child: SizedBox(height: AppDimensions.paddingL)),
@@ -240,9 +272,10 @@ class _HomePageState extends State<_HomePage> {
       child: Container(
         padding: const EdgeInsets.all(AppDimensions.paddingM),
         decoration: BoxDecoration(
-          color: AppColors.homeAccentLight ?? Colors.orange, 
+          color: AppColors.homeAccentLight ?? Colors.orange,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.homeAccent ?? Colors.orange, width: 1),
+          border: Border.all(
+              color: AppColors.homeAccent ?? Colors.orange, width: 1),
         ),
         child: Row(
           children: [
