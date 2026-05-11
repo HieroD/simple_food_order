@@ -57,7 +57,6 @@ class AppData {
 
   static const List<FoodCategory> categories = [
     FoodCategory(id: '1', name: 'makanan',       emoji: '🍢', isSelected: true),
-
   ];
 
   static const List<Restaurant> restaurants = [
